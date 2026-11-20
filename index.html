@@ -13,37 +13,72 @@ function init(){el("level").value=level;el("level").onchange=e=>{level=+e.target
 
 function illustration(name){
 const n=name.toLowerCase(),hash=[...n].reduce((a,c)=>a+c.charCodeAt(0),0);
-const palette=["#69c9d0","#f8be66","#b5a0f5","#f28b88","#a8dca1","#ed9ed1","#7ab3f0"];
-const bg=palette[hash%palette.length];const straddle=n.includes("straddle"),tuck=n.includes("tuck"),assisted=n.includes("assisted"),back=n.includes("backlever"),front=n.includes("frontlever");
-const L=(a,b,c,d)=>'<path d="M'+a+' '+b+' L'+c+' '+d+'"/>';
-const J=(points)=>'<polyline points="'+points.map(p=>p.join(",")).join(" ")+'"/>';
-let pose="stand";
-if(/frontlever|backlever/.test(n))pose="lever";
-else if(/muscle up|pull up/.test(n))pose="pull";
-else if(/dragon flag|windshield|toes to bar/.test(n))pose="core";
-else if(/handstand|planche|pike/.test(n))pose="invert";
-else if(/pistol|split squat|lunge/.test(n))pose="squat";
-else if(/deadlift/.test(n))pose="deadlift";
-else if(/box jump/.test(n))pose="jump";
-else if(/l-sit|v-sit|v-up|compression/.test(n))pose="sit";
-else if(/push up|tricep/.test(n))pose="push";
-const head=(x,y)=>'<circle cx="'+x+'" cy="'+y+'" r="7.2" fill="#e7ad81" stroke="#6c4132" stroke-width="1.3"/>';
-const body=(x1,y1,x2,y2)=>'<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" stroke="#293b49" stroke-width="12" stroke-linecap="round"/>';
-const limbs=(coords)=>'<path d="'+coords+'" stroke="#e7ad81" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>';
-let art="";
-if(pose==="lever"){
-const feet=tuck?'<path d="M72 55L82 69L68 76 M72 55L88 66L82 79" stroke="#293b49" stroke-width="9" stroke-linecap="round" fill="none"/>':straddle?'<path d="M72 55L103 32 M72 55L103 78" stroke="#293b49" stroke-width="9" stroke-linecap="round"/>':'<path d="M72 55L104 55 M72 55L104 60" stroke="#293b49" stroke-width="9" stroke-linecap="round"/>';
-art='<path d="M9 15H111" stroke="#273844" stroke-width="5"/>'+head(29,55)+body(38,55,72,55)+limbs(back?'M45 54L48 28L48 15 M58 54L68 28L68 15':'M45 53L34 29L34 15 M58 53L57 29L57 15')+feet+(assisted?'<path d="M96 17L96 44" stroke="#f5f5f5" stroke-width="2" stroke-dasharray="4 3"/>':'');
-}else if(pose==="pull"){art='<path d="M14 13H108" stroke="#273844" stroke-width="5"/>'+head(60,33)+body(60,42,60,67)+limbs('M54 43L42 24L42 13 M66 43L78 24L78 13')+'<path d="M60 67L45 87M60 67L75 87" stroke="#293b49" stroke-width="10" stroke-linecap="round"/>';}
-else if(pose==="invert"){const planche=n.includes("planche")&&!n.includes("handstand");art=planche?head(86,45)+body(77,49,49,58)+limbs('M75 53L78 78 M65 56L56 78')+'<path d="M49 58L17 54 M49 58L18 69" stroke="#293b49" stroke-width="10" stroke-linecap="round"/>':head(61,71)+body(61,60,61,36)+limbs('M56 56L44 79 M66 56L79 79')+'<path d="M61 36L49 13 M61 36L74 13" stroke="#293b49" stroke-width="10" stroke-linecap="round"/>';}
-else if(pose==="squat"){art=head(62,23)+body(62,34,58,56)+limbs('M60 41L40 55 M63 42L81 56')+'<path d="M58 56L37 67L24 83 M58 56L81 68L99 83" stroke="#293b49" stroke-width="10" stroke-linecap="round"/>';}
-else if(pose==="deadlift"){art=head(83,32)+body(76,39,53,53)+limbs('M70 43L66 72 M62 49L52 72')+'<path d="M53 53L27 48 M53 53L57 81" stroke="#293b49" stroke-width="10" stroke-linecap="round"/>';}
-else if(pose==="jump"){art='<path d="M82 87V65H113" stroke="#273844" stroke-width="5"/>'+head(55,17)+body(55,27,55,50)+limbs('M55 36L35 46 M55 36L74 42')+'<path d="M55 50L78 61L92 63 M55 50L34 65L25 77" stroke="#293b49" stroke-width="10" stroke-linecap="round"/>';}
-else if(pose==="sit"){art='<path d="M8 85H112" stroke="#415365" stroke-width="3"/>'+head(31,52)+body(38,57,60,70)+limbs('M47 63L44 84 M59 70L62 84')+'<path d="M60 70L85 43L106 35" stroke="#293b49" stroke-width="10" stroke-linecap="round"/>';}
-else if(pose==="core"){art='<path d="M8 85H112" stroke="#415365" stroke-width="3"/>'+head(24,69)+body(32,68,62,62)+limbs('M36 71L23 83 M47 68L45 84')+'<path d="M62 62L86 44L105 38" stroke="#293b49" stroke-width="10" stroke-linecap="round"/>';}
-else if(pose==="push"){art=head(96,44)+body(87,48,57,60)+limbs('M81 51L89 80 M66 58L67 81')+'<path d="M57 60L25 64L16 82" stroke="#293b49" stroke-width="10" stroke-linecap="round"/>';}
-else{art=head(60,22)+body(60,32,60,59)+limbs('M60 38L39 54 M60 38L81 54')+'<path d="M60 59L44 85 M60 59L76 85" stroke="#293b49" stroke-width="10" stroke-linecap="round"/>';}
-return '<svg viewBox="0 0 120 100" role="img" aria-label="Spalvota pratimo iliustracija" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="clipExercise"><circle cx="60" cy="50" r="48"/></clipPath></defs><g clip-path="url(#clipExercise)"><rect width="120" height="100" fill="'+bg+'"/><ellipse cx="60" cy="94" rx="48" ry="8" fill="#293b49" opacity=".12"/>'+art+'</g></svg>'
+const colors=["#9bd8e2","#f2bf87","#c3a9e8","#f3a9a6","#b6dfad","#edb1d3","#a6c9fa"];
+const bg=colors[hash%colors.length], back=n.includes("backlever"),front=n.includes("frontlever"),straddle=n.includes("straddle"),tuck=n.includes("tuck"),single=n.includes("single leg"),assisted=n.includes("assisted"),left=n.includes("left");
+const path=(d,color="#283f52",w=9)=>'<path d="'+d+'" stroke="'+color+'" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round" fill="none"/>';
+const head=(x,y)=>'<circle cx="'+x+'" cy="'+y+'" r="7" fill="#e8b18b" stroke="#825c4b" stroke-width="1.5"/>';
+const torso=(d)=>path(d,"#263c50",12),skin=(d)=>path(d,"#e8b18b",7),legs=(d)=>path(d,"#354b66",10);
+const bar=(d)=>path(d,"#415460",4);
+let art="",kind="standing";
+if(front||back)kind="lever";
+else if(n.includes("muscle up"))kind="muscle";
+else if(n.includes("pull up"))kind="pull";
+else if(n.includes("dragon flag"))kind="dragon";
+else if(n.includes("windshield"))kind="wipers";
+else if(n.includes("toes to bar"))kind="toes";
+else if(n.includes("planche")&&!n.includes("handstand"))kind="planche";
+else if(n.includes("handstand")||n.includes("pike push"))kind="handstand";
+else if(n.includes("pistol"))kind="pistol";
+else if(n.includes("bulgarian"))kind="bulgarian";
+else if(n.includes("lunge"))kind="lunge";
+else if(n.includes("deadlift"))kind="deadlift";
+else if(n.includes("box jump"))kind="jump";
+else if(n.includes("l-sit")||n.includes("v-sit")||n.includes("v-up")||n.includes("compression"))kind="sit";
+else if(n.includes("push up")||n.includes("tricep"))kind="push";
+if(kind==="lever"){
+art=bar("M7 17H113")+head(27,53)+torso("M37 53L70 53")+skin(back?"M46 52L48 29L48 17 M57 52L67 29L67 17":"M46 52L36 29L36 17 M57 52L58 29L58 17");
+art+=tuck?legs("M70 53L82 68L70 76 M70 53L90 65L86 77"):straddle?legs("M70 53L106 30 M70 53L106 76"):single?legs("M70 53L106 53 M70 53L85 67L71 72"):legs("M70 53L108 53");
+if(assisted)art+=path("M103 19L103 42","#ffffff",2);
+if(n.includes("raise")||n.includes("pulse"))art+=path("M99 68Q109 58 102 45","#ffffff",2);
+}else if(kind==="planche"){
+const lean=n.includes("lean"),adv=n.includes("tuck")||n.includes("reset");
+art=head(89,43)+torso(lean?"M79 48L53 55":"M79 48L51 48")+skin("M73 49L77 78 M62 51L56 78")+bar("M36 82H96");
+art+=adv?legs("M51 48L38 60L48 69 M51 48L30 59L39 68"):straddle?legs("M51 48L12 28 M51 48L12 69"):lean?legs("M53 55L29 66L14 80 M53 55L36 75L27 83"):legs("M51 48L12 46");
+if(n.includes("push up")||n.includes("press"))art+=path("M74 69L88 69","#ffffff",2);
+}else if(kind==="handstand"){
+const bent=n.includes("push up")||n.includes("90 degree"),sit=n.includes("l-sit");
+art=bar("M32 88H90")+head(61,bent?65:73)+torso(bent?"M61 57L61 33":"M61 65L61 35")+skin(bent?"M58 57L41 65L40 85 M64 57L81 65L82 85":"M57 62L43 85 M65 62L79 85");
+art+=sit?legs("M61 35L87 30L108 31 M61 35L86 45L107 46"):n.includes("straddle")?legs("M61 35L28 14 M61 35L94 14"):bent?legs("M61 33L46 15 M61 33L78 15"):legs("M61 35L61 8 M61 35L70 9");
+}else if(kind==="muscle"){
+art=bar("M13 39H107")+head(60,23)+torso("M60 31L60 63")+skin("M56 37L39 39 M64 37L81 39")+legs("M60 63L45 85 M60 63L75 85");
+}else if(kind==="pull"){
+const lsit=n.includes("l-sit"),weighted=n.includes("weighted");
+art=bar("M12 13H108")+head(60,36)+torso("M60 44L60 65")+skin("M55 45L43 27L43 13 M65 45L77 27L77 13")+ (lsit?legs("M60 65L87 65L105 65 M60 65L87 75L105 75"):legs("M60 65L46 87 M60 65L74 87"));
+if(weighted)art+='<circle cx="60" cy="83" r="6" fill="#546875"/>';
+}else if(kind==="pistol"){
+art=head(57,24)+torso("M57 32L55 55")+skin("M57 41L36 57 M57 41L76 54")+legs("M55 55L39 69L33 87 M55 55L83 65L107 65");
+}else if(kind==="bulgarian"){
+art=bar("M10 78H39")+head(65,19)+torso("M65 28L65 54")+skin("M65 36L46 50 M65 36L82 51")+legs("M65 54L83 68L84 88 M65 54L40 60L30 77");
+}else if(kind==="lunge"){
+art=head(59,18)+torso("M59 28L59 55")+skin("M59 35L42 48 M59 35L77 48")+legs("M59 55L34 67L22 85 M59 55L82 69L102 83");
+}else if(kind==="deadlift"){
+art=head(81,30)+torso("M75 37L49 52")+skin("M69 44L64 72 M58 49L50 72")+legs("M49 52L23 47 M49 52L54 83");
+}else if(kind==="jump"){
+art=bar("M84 88V64H115")+head(54,16)+torso("M54 25L54 50")+skin("M54 35L33 46 M54 35L76 43")+legs("M54 50L77 61L94 62 M54 50L34 66L24 78");
+}else if(kind==="sit"){
+const v=n.includes("v-"),compress=n.includes("compression");
+art=bar("M8 86H112")+head(33,52)+torso("M40 58L62 70")+skin("M48 64L45 84 M58 69L61 84")+legs(v?"M62 70L80 32L94 19 M62 70L91 39L107 29":compress?"M62 70L84 49L101 50 M62 70L90 60L108 60":"M62 70L87 65L109 65 M62 70L87 75L109 75");
+}else if(kind==="dragon"||kind==="wipers"||kind==="toes"){
+art=bar(kind==="toes"?"M12 14H108":"M8 85H112");
+art+=kind==="toes"?head(60,39)+torso("M60 47L60 64")+skin("M54 47L42 28L42 14 M66 47L78 28L78 14")+legs("M60 64L89 39L101 17 M60 64L95 45L106 24"):head(22,67)+torso("M31 66L62 56")+skin("M34 70L24 82 M45 63L43 82")+legs(kind==="wipers"?"M62 56L83 22 M62 56L107 40":"M62 56L84 30L106 21");
+}else if(kind==="push"){
+art=head(96,43)+torso("M86 47L57 57")+skin("M82 50L88 79 M66 54L65 80")+legs("M57 57L25 62L15 81");
+}else{
+art=head(60,22)+torso("M60 32L60 59")+skin("M60 38L39 54 M60 38L81 54")+legs("M60 59L44 85 M60 59L76 85");
+}
+if(left)art+='<circle cx="105" cy="12" r="7" fill="#243d51"/><text x="105" y="16" text-anchor="middle" fill="white" font-size="10">L</text>';
+if(n.includes("right"))art+='<circle cx="105" cy="12" r="7" fill="#243d51"/><text x="105" y="16" text-anchor="middle" fill="white" font-size="10">R</text>';
+return '<svg viewBox="0 0 120 100" role="img" aria-label="Pratimo '+esc(name)+' iliustracija" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="50" r="49" fill="'+bg+'"/><g>'+art+'</g></svg>';
 }
 function referenceUrl(name){const n=name.toLowerCase();if(n.includes("planche"))return "https://danielhristov.com/blog/learn-planche-at-home";if(n.includes("frontlever"))return "https://calisthenicsnerd.com/2020/12/05/how-to-front-lever-step-by-step-guide/";if(n.includes("backlever"))return "https://www.bergmovement.com/calisthenics-blog/back-lever-tutorial";return ""}
 function demo(name){return '<div class="demo">'+illustration(name)+'<div><a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/results?search_query='+encodeURIComponent(name+' calisthenics exercise tutorial')+'">Žiūrėti pratimą ↗</a><small>Spalvota iliustracija. Techniką tikrink vaizdo įraše.</small></div></div>'}
