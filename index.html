@@ -22,18 +22,8 @@ function syncWeeks(){const w=el("week"),max=level>=6?8:12;w.innerHTML="";for(let
 function init(){el("level").value=level;el("level").onchange=e=>{level=+e.target.value;day=0;week=Math.min(week,level>=6?8:12);localStorage.setItem("mano-kalistenika-level",level);localStorage.setItem(KEY+"-day",day);localStorage.setItem(KEY+"-week",week);syncWeeks();render()};syncWeeks();el("week").onchange=e=>{week=+e.target.value;localStorage.setItem(KEY+"-week",week);render()};render();clock()}
 
 
-function illustration(name){
-const n=name.toLowerCase();
-const commons="https://commons.wikimedia.org/wiki/Special:FilePath/";
-let file="";
-if(n.includes("frontlever"))file="Front lever - Serhii Solodkyi 18280.jpg";
-else if(n.includes("muscle up"))file="Muscleup.jpg";
-else if(n.includes("backlever"))file="Back lever.jpg";
-else if(n.includes("planche"))file="2025-09 - Ronchamp - 03.jpg";
-if(!file)return '<div class="photo-missing"><span>Nuotrauka dar neparinkta</span></div>';
-return '<img class="exercise-photo" loading="lazy" alt="'+esc(name)+' – tikra sportininko nuotrauka (bendras judesio pavyzdys)" src="'+commons+encodeURIComponent(file)+'" onerror="this.outerHTML=\'<div class=&quot;photo-missing&quot;>Nuotrauka nepasiekiama</div>\'">';
-}
-function demo(name){return '<div class="demo">'+illustration(name)+'<div><a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/results?search_query='+encodeURIComponent(name+' calisthenics exercise tutorial')+'">Žiūrėti pratimą ↗</a><small>Nuotraukos iš Wikimedia Commons. Pozos variantas gali skirtis.</small></div></div>'}
+function illustration(name){return '';}
+function demo(name){return '<div class="demo">'+illustration(name)+'<div><a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/results?search_query='+encodeURIComponent(name+' calisthenics exercise tutorial')+'">Žiūrėti pratimą ↗</a><small>Nuotrauka dar nepatvirtinta. Atidaryk pratimo vaizdo paiešką.</small></div></div>'}
 function render(){if(day>=currentPlan().length){day=0;localStorage.setItem(KEY+"-day",day)}el("days").innerHTML=currentPlan().map((p,i)=>'<button class="'+(day===i?"active":"")+'" onclick="pick('+i+')">'+esc(p[0])+'<small>'+p[1].length+' pratimai</small></button>').join("");el("heading").textContent=currentPlan()[day][0];el("exercises").innerHTML=currentPlan()[day][1].map((e,i)=>{const d=get(i);return '<section class="card exercise"><h3>'+(i+1)+'. '+esc(e[0])+'</h3>'+demo(e[0])+previousWeek(i)+'<div class="target">'+e[1]+' serijos × '+esc(e[2])+' '+(e[3]==="sec"?"sek.":"kart.")+'</div>'+d.sets.map((s,j)=>'<div class="set '+(s.done?"done":"")+'"><input type="checkbox" aria-label="Atlikta serija '+(j+1)+'" '+(s.done?"checked":"")+' onchange="changeDone('+i+','+j+',this.checked)"><label>Serija '+(j+1)+'</label><input type="number" min="0" step="any" placeholder="'+(e[3]==="sec"?"sek.":"kart.")+'" value="'+esc(s.value)+'" oninput="changeValue('+i+','+j+',this.value)"><span class="muted">'+(e[3]==="sec"?"s":"×")+'</span><button class="remove" title="Pašalinti seriją" aria-label="Pašalinti seriją '+(j+1)+'" onclick="removeSet('+i+','+j+')">×</button></div>').join("")+'<button class="add" onclick="addSet('+i+')">+ Pridėti seriją</button><textarea placeholder="Pastabos: technika, pojūčiai, svoris…" oninput="changeNote('+i+',this.value)">'+esc(d.notes)+'</textarea></section>'}).join("");progress()}
 function progress(){let all=0,done=0;currentPlan()[day][1].forEach((_,i)=>get(i).sets.forEach(s=>{all++;if(s.done)done++}));let p=all?Math.round(done/all*100):0;el("bar").style.width=p+"%";el("pct").textContent=p+"%";el("summary").textContent=done+" iš "+all+" serijų atlikta"}
 function pick(i){day=i;localStorage.setItem(KEY+"-day",day);render()}
