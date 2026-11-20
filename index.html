@@ -22,8 +22,26 @@ function syncWeeks(){const w=el("week"),max=level>=6?8:12;w.innerHTML="";for(let
 function init(){el("level").value=level;el("level").onchange=e=>{level=+e.target.value;day=0;week=Math.min(week,level>=6?8:12);localStorage.setItem("mano-kalistenika-level",level);localStorage.setItem(KEY+"-day",day);localStorage.setItem(KEY+"-week",week);syncWeeks();render()};syncWeeks();el("week").onchange=e=>{week=+e.target.value;localStorage.setItem(KEY+"-week",week);render()};render();clock()}
 
 
-function illustration(name){return '';}
-function demo(name){return '<div class="demo">'+illustration(name)+'<div><a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/results?search_query='+encodeURIComponent(name+' calisthenics exercise tutorial')+'">Žiūrėti pratimą ↗</a><small>Nuotrauka dar nepatvirtinta. Atidaryk pratimo vaizdo paiešką.</small></div></div>'}
+const CALI4_PHOTOS={
+"Straddle planche":"https://www.creapure.com/sites/default/files/styles/gallery_colorbox/public/plantss3_1_of_1.jpg?itok=CSMHTP6x",
+"Handstand to L-sit":"https://i.pinimg.com/originals/96/24/3e/96243e04ff802bddf08b3f46e49754ca.jpg",
+"L-sit to handstand":"https://i.pinimg.com/originals/96/24/3e/96243e04ff802bddf08b3f46e49754ca.jpg",
+"Handstand push up":"https://cdn.shopify.com/s/files/1/0680/7843/6626/files/Handstand_Push-Ups2_480x480.png?v=1700626212",
+"Box jumps":"https://trugrit-fitness.com/cdn/shop/files/jumpy.jpg?v=1700094885&width=1200",
+"Bulgarian split squat (left)":"https://www.gymshark.com/_next/image?q=75&url=https%3A%2F%2Fimages.ctfassets.net%2F8urtyqugdt2l%2Fan332LVc89C33kZl3zNAp%2Fcc364829dedecb7dde2ef092c289c2bc%2Fdesktop-bulgarian-split-squats.jpg&w=3840",
+"Bulgarian split squat (right)":"https://www.gymshark.com/_next/image?q=75&url=https%3A%2F%2Fimages.ctfassets.net%2F8urtyqugdt2l%2Fan332LVc89C33kZl3zNAp%2Fcc364829dedecb7dde2ef092c289c2bc%2Fdesktop-bulgarian-split-squats.jpg&w=3840",
+"Muscle up":"https://cdn.calisteniapp.com/09_2024/images/exercise/full/EX136.jpg",
+"Pistol squat (left)":"https://cdn.accentuate.io/7522751774809/1709841914047/000919-bkgu-s-01-fastlift-360-womens-lifting-shoe-black-gum-lightweight.jpeg?v=1709842244088",
+"Pistol squat (right)":"https://cdn.accentuate.io/7522751774809/1709841914047/000919-bkgu-s-01-fastlift-360-womens-lifting-shoe-black-gum-lightweight.jpeg?v=1709842244088",
+"L-sit hold":"https://static.standard.co.uk/s3fs-public/thumbnails/image/2017/01/13/11/an113501815biophilic-tarzan.jpg?width=1200"
+};
+function illustration(name){
+if(level!==4)return '';
+const url=CALI4_PHOTOS[name];
+if(!url)return '<div class="photo-missing">Nuotrauka dar neparinkta</div>';
+return '<img class="exercise-photo" loading="lazy" alt="'+esc(name)+' – pratimo nuotrauka" src="'+url.replace(/&/g,'&amp;')+'" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'photo-missing\',textContent:\'Nuotrauka nepasiekiama\'}))">';
+}
+function demo(name){return '<div class="demo">'+illustration(name)+'<div><a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/results?search_query='+encodeURIComponent(name+' calisthenics exercise tutorial')+'">Žiūrėti pratimą ↗</a><small>Nuotrauka rodoma, jei rasta. Techniką tikrink vaizdo įraše.</small></div></div>'}
 function render(){if(day>=currentPlan().length){day=0;localStorage.setItem(KEY+"-day",day)}el("days").innerHTML=currentPlan().map((p,i)=>'<button class="'+(day===i?"active":"")+'" onclick="pick('+i+')">'+esc(p[0])+'<small>'+p[1].length+' pratimai</small></button>').join("");el("heading").textContent=currentPlan()[day][0];el("exercises").innerHTML=currentPlan()[day][1].map((e,i)=>{const d=get(i);return '<section class="card exercise"><h3>'+(i+1)+'. '+esc(e[0])+'</h3>'+demo(e[0])+previousWeek(i)+'<div class="target">'+e[1]+' serijos × '+esc(e[2])+' '+(e[3]==="sec"?"sek.":"kart.")+'</div>'+d.sets.map((s,j)=>'<div class="set '+(s.done?"done":"")+'"><input type="checkbox" aria-label="Atlikta serija '+(j+1)+'" '+(s.done?"checked":"")+' onchange="changeDone('+i+','+j+',this.checked)"><label>Serija '+(j+1)+'</label><input type="number" min="0" step="any" placeholder="'+(e[3]==="sec"?"sek.":"kart.")+'" value="'+esc(s.value)+'" oninput="changeValue('+i+','+j+',this.value)"><span class="muted">'+(e[3]==="sec"?"s":"×")+'</span><button class="remove" title="Pašalinti seriją" aria-label="Pašalinti seriją '+(j+1)+'" onclick="removeSet('+i+','+j+')">×</button></div>').join("")+'<button class="add" onclick="addSet('+i+')">+ Pridėti seriją</button><textarea placeholder="Pastabos: technika, pojūčiai, svoris…" oninput="changeNote('+i+',this.value)">'+esc(d.notes)+'</textarea></section>'}).join("");progress()}
 function progress(){let all=0,done=0;currentPlan()[day][1].forEach((_,i)=>get(i).sets.forEach(s=>{all++;if(s.done)done++}));let p=all?Math.round(done/all*100):0;el("bar").style.width=p+"%";el("pct").textContent=p+"%";el("summary").textContent=done+" iš "+all+" serijų atlikta"}
 function pick(i){day=i;localStorage.setItem(KEY+"-day",day);render()}
